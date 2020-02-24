@@ -1,0 +1,126 @@
+@font-face{font-family:'MuseoCyrl';src:url(../fonts/MuseoCyrl300.otf);}
+
+
+body{background: url(../img/bg.jpg) no-repeat; background-size: cover; background-position: center center; background-attachment: fixed;  font-family:'MuseoCyrl';}
+
+img{vertical-align: top;}
+
+
+header{
+	margin: 60px 100px;
+}
+
+.logo{
+	text-align: center;
+}
+
+.menu-button{
+    display: inline-block;
+    float: right;
+    width: 32px;
+    height: 16px;
+    margin-top: 20px;
+    cursor: pointer;
+}
+
+.content{
+    text-align: center;
+    padding: 60px 0px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+}
+
+.content p{
+    color: #35393b;
+    font-size: 80px;
+    margin-top: 5px;
+    text-transform: uppercase;
+}
+
+
+footer{
+    font-size: 18px;
+    position: absolute;
+    bottom: 60px;
+    left: 100px;
+    right: 100px;
+    color: #35393b;
+    font-size: 50px;
+}
+
+
+@media (min-width: 320px) and (max-width: 500px) {
+	header{
+		margin: 60px 20%;
+	}
+
+	.logo img{
+		width: 100%;
+		height: auto;
+	}
+
+	.content{
+	    padding: 60px 0px;
+	}
+	.content p{
+	    font-size: 26px;
+	}
+
+	footer{
+	    bottom: 20px;
+	    left: 20px;
+	    right: 0px;
+	    font-size: 24px;
+	}
+}
+
+@media (min-width: 501px) and (max-width: 900px) {
+	header{
+		margin: 60px 20%;
+	}
+		.logo img{
+		width: 100%;
+		height: auto;
+	}
+
+	.content{
+	    padding: 60px 0px;
+	}
+	.content p{
+	    font-size: 50px;
+	}
+
+	footer{
+	    bottom: 70px;
+	    left: 40px;
+	    right: 0px;
+	    font-size: 35px;
+	}
+}
+
+@media (min-width: 901px) and (max-width: 1440px) {
+	header{
+		margin: 60px 30%;
+	}
+		.logo img{
+		width: 100%;
+		height: auto;
+	}
+
+	.content{
+	    padding: 60px 0px;
+	}
+	.content p{
+	    font-size: 50px;
+	}
+
+	footer{
+	    bottom: 70px;
+	    left: 40px;
+	    right: 0px;
+	    font-size: 35px;
+	}
+}

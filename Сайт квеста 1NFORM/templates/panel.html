@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
+  <link href="{{ url_for("static", filename="style/vuetify.min.css") }}" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="theme-color" content="#2f2f2f">
+  <title>Собеседование участникв</title>
+  <link rel="shortcut icon" href="{{ url_for("static", filename="img/favicon.png") }}" type="image/png">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+</head>
+<body >
+  <div id="app">
+    <v-app>
+      <v-content >
+        <v-container>
+          <v-layout>
+            <v-flex v-if="started" md8 offset-md2>
+              <v-card class="grey--text text--darken-3" style="font-family:'Museo Cyrl 300'">
+                <v-card-title>
+                  <v-layout align-center wrap justify-center row>
+                    <!-- <v-flex text-xs-center lg6 sm12>
+                      <v-avatar size="300">
+                        <v-img src="https://pp.userapi.com/c851128/v851128882/f5b6e/A_t8JCZs8Hg.jpg"></v-img>
+                      </v-avatar>
+                    </v-flex> -->
+                    <v-flex text-xs-center lg6 sm12>
+                      <div style="font-size:60px; font-family:'Museo Cyrl 900'; line-height: 1 ">
+                        [[ name ]]
+                      </div>
+                    </v-flex>
+                  </v-layout>
+                </v-card-title>
+                <v-card-text>
+                  <v-layout column>
+                    <v-flex text-xs-center>
+                      <div class="pb-4" style="font-size:40px; line-height: 1">
+                        [[ faculty ]]
+                      </div>
+                      <div>
+                        <a style="font-size:30px; text-decoration:none":href="'https://vk.com/id' + vk" class="orange--text" target="_blank">Ссылка на страницу</a>
+                      </div>
+                    </v-flex>
+                    <v-flex text-xs-center>
+                      <v-btn dark color="orange" @click="show_questions = !show_questions">
+                        Вопросы для собеседования <v-icon>[[ show_questions ? 'keyboard_arrow_down' : 'keyboard_arrow_up' ]]</v-icon>
+                      </v-btn>
+                    </v-flex>
+                    <v-flex v-show="show_questions">
+                      1. Откуда узнали про 1NFORM?
+                      <br>2. Почему интересен проект?
+                      <br>3. Считаешь ли ты свои познания об устройстве университета достаточным, чтобы работать в 1NFORM?
+                      <br>4. Почему именно эти направления?
+                      <br>5. Вопросы по направлениям
+                      <br>6. Готовы ли вы будете ради проекта удалить всю неприемлемую информацию со страницы, поставить свою настоящую фотографию и настоящее имя с фамилией?
+                      <br>7. Что вы хотите получить от проекта?
+                      <br>8. Есть ли пожелания по работе или вопросы к нам?
+<br>
+                    <br>  Собеседники:
+                      <br>1. Есть ли у вас вопросы по мастер-классу?
+                      <br>2. Будете ли вы свободны на время августа?
+                      <br>3. Считаешь ли ты себя общительным?
+<br>
+<br>                      Серферы:
+    <br>                  1. Будет ли у вас в августе доступ к ноутбуку и интернету?
+        <br>              2. Насколько ты усидчив?
+            <br>          3. Не постесняешься писать случайным людям с целью узнать, тот ли этот человек / знакомым и родственникам, чтобы узнать страницу человека?
+                <br>      4. Предпочитаешь сам искать информацию, либо спрашивать её у других (кураторов, одногруппников)?
+<br>
+    <br>                  Фильтрация:
+        <br>              1. За последние пару лет посещал клубы?
+            <br>          2. Что думаешь по их поводу?
+                <br>      3. Что для тебя значит непредвзятость?
+<br>
+    <br>                  Эвент:
+        <br>              1. Был ли опыт в организации мероприятий?
+            <br>          2. Ты инициатор или исполнитель?
+                <br>      3. Есть ли у тебя какие-то навыки (рукоделие, выступление перед публикой, дизайн итд), которые могли бы помочь в организации мероприятия?
+                    <br>  4. На каких мероприятиях университета ты был? Какие самые главные плюсы и самые главные минусы ты в них видишь?
+<br>
+    <br>                  Фандрайзинг:
+        <br>              1. Был ли опыт в общении с партнерами/спонсорами?
+            <br>          2. Можешь ли ты быть настойчивым?
+                <br>      3. Чего крутого, по твоему, можно было бы нафандрайзить на встречу первокурсников, чего не фандрайзят на другие мероприятия СПбГУТ? (как-то переформулировать бы)
+<br>
+    <br>                  SMM:
+        <br>              1. Какие группы университета тебе нравятся?
+            <br>          2. Какие проблемы с информированием в университете видишь ты?
+                <br>      3. Владеешь ли ты какими-либо навыками в дизайне?
+                    <br>  4. Из чего, по-твоему, должен состоять пост?
+                      <br>5. Есть ли у тебя опыт работы в данной сфере? (Если да, то в каких подразделениях СС?)
+                    </v-flex>
+                    <v-flex>
+                      <div class="pa-3"style="font-size:30px; line-height: 1">
+                        Комментарий к участнику
+                      </div>
+                      <v-textarea color="orange" class="orange--text pa-2" outline v-model="comment" label="Комментарий"></v-textarea>
+                      <div v-for="dep in deps">
+                        <v-card flat>
+                          <v-card-title style="font-size:30px; line-height: 1">
+                            [[ dep.name ]]
+                          </v-card-title>
+                          <v-card-actions>
+                            <v-textarea v-model="dep.comment" color="orange" class="orange--text" outline label="Комментарий"></v-textarea>
+                          </v-card-actions>
+                        </v-card>
+                      </div>
+                    </v-flex>
+                  </v-layout>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-layout text-xs-center row>
+                      <v-flex>
+                        <v-dialog v-model="delete_dialog" max-width="350">
+                          <v-btn large slot="activator" dark class='red ma-4'>Не пришел</v-btn>
+                          <v-card class="text-xs-center">
+                            <v-card-title style="font-family: 'Museo Cyrl 300'; font-size:30px">
+                              <v-layout text-xs-center>
+                                <v-flex>
+                                  Исключить из очереди?
+                                </v-flex>
+                              </v-layout>
+                            </v-card-title>
+                            <v-card-actions>
+                              <v-layout row text-xs-center style="font-family: 'Museo Cyrl 300'; font-size:30px">
+                                <v-flex>
+                                  <v-btn color="red" @click="delete_queue" dark flat >Да</v-btn>
+                                </v-flex>
+                                <v-flex>
+                                  <v-btn color="orange" @click="delete_dialog = false" dark flat >Нет</v-btn>
+                                </v-flex>
+                              </v-layout>
+                            </v-card-actions>
+                          </v-card>
+                        </v-dialog>
+                      </v-flex>
+                      <v-flex>
+                        <v-dialog v-model="late_dialog" max-width="350">
+                          <v-btn large slot="activator" dark class='blue ma-4'>Опаздывает</v-btn>
+                          <v-card class="text-xs-center">
+                            <v-card-title style="font-family: 'Museo Cyrl 300'; font-size:30px">
+                              <v-layout text-xs-center>
+                                <v-flex>
+                                  Отправить в конец очереди?
+                                </v-flex>
+                              </v-layout>
+                            </v-card-title>
+                            <v-card-actions>
+                              <v-layout row text-xs-center style="font-family: 'Museo Cyrl 300'; font-size:30px">
+                                <v-flex>
+                                  <v-btn color="red" @click="late" dark flat >Да</v-btn>
+                                </v-flex>
+                                <v-flex>
+                                  <v-btn color="orange" @click="late_dialog = false" dark flat >Нет</v-btn>
+                                </v-flex>
+                              </v-layout>
+                            </v-card-actions>
+                          </v-card>
+                        </v-dialog>
+                      </v-flex>
+                      <v-flex>
+                        <v-dialog v-model="next_dialog" max-width="350">
+                          <v-btn large slot="activator" dark class='orange ma-4'>Следующий</v-btn>
+                          <v-card class="text-xs-center">
+                            <v-card-title style="font-family: 'Museo Cyrl 300'; font-size:30px">
+                              <v-layout text-xs-center>
+                                <v-flex>
+                                  Сохранить текущего и позвать следующего?
+                                </v-flex>
+                              </v-layout>
+                            </v-card-title>
+                            <v-card-actions>
+                              <v-layout row text-xs-center style="font-family: 'Museo Cyrl 300'; font-size:30px">
+                                <v-flex>
+                                  <v-btn color="orange" @click="next" dark flat >Да</v-btn>
+                                </v-flex>
+                                <v-flex>
+                                  <v-btn color="red" @click="next_dialog = false" dark flat >Нет</v-btn>
+                                </v-flex>
+                              </v-layout>
+                            </v-card-actions>
+                          </v-card>
+                        </v-dialog>
+                      </v-flex>
+                    </v-layout>
+                  </v-card-actions>
+              </v-card>
+            </v-flex>
+            <v-flex v-else xs6 offset-xs3>
+              <div v-if="!faculty">
+                <v-btn large dark color="orange" v-for="fac in faculties" :key="fac" @click="faculty = fac">[[fac]]</v-btn>
+              </div>
+              <div class="text-xs-center" v-else>
+                <div class="display-4">[[ faculty ]]</div>
+                <v-btn large block color="orange" dark @click="start">Запускайте бычка</v-btn>
+              </div>
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-content>
+    </v-app>
+  </div>
+
+  <script src="{{ url_for("static", filename="js/vue.js") }}"></script>
+  <script src="{{ url_for("static", filename="js/vuetify.js") }}"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+    new Vue({
+       el: '#app',
+       delimiters: ['[[', ']]'],
+       data() {
+         return {
+           started: false,
+           name: null,
+           faculty: null,
+           sobes: true,
+           show_questions: false,
+           show: false,
+           comment: null,
+           next_dialog: false,
+           late_dialog: false,
+           delete_dialog: false,
+           vk: null,
+           faculties: ['ИСиТ','РТС','ИКСС','ИВО','ГФ','ЦЭУБИ','СПбКТ'],
+           deps: null
+         }
+       },
+       methods:{
+         start(){
+           this.started = true
+           const data = {
+             method: 'current',
+             faculty: this.faculty
+           }
+           axios.post("https://1nform.ru/school/api/queue/", data).then((resp) =>{
+            if (resp.data){
+              console.log(resp)
+             this.name = resp.data.name
+             this.faculty = resp.data.faculty
+             this.deps = resp.data.deps
+             this.vk = resp.data.vk
+             this.token = resp.data.token
+             this.comment = resp.data.comment
+           }
+           else{
+             this.started = false
+           }
+         }
+         )
+       },
+         next(){
+           const data = {
+             method: 'update',
+             vk: this.vk,
+             deps: this.deps,
+             comment: this.comment
+           }
+           axios.post("https://1nform.ru/school/api/queue/", data).then((resp) =>{
+           if(resp.data){
+             const new_data = {
+               method: 'next',
+               token: this.token,
+               faculty: this.faculty,
+             }
+             axios.post("https://1nform.ru/school/api/queue/", new_data).then((new_resp) =>{
+               this.next_dialog = false
+                if (new_resp.data){
+                  this.name = new_resp.data.name
+                  this.faculty = new_resp.data.faculty
+                  this.deps = new_resp.data.deps
+                  this.vk = new_resp.data.vk
+                  this.token = new_resp.data.token
+                  this.comment = new_resp.data.comment
+                }
+                else{
+                  this.started = false
+                }
+             })
+           }
+         }
+         )
+       },
+       delete_queue() {
+         this.next()
+         this.delete_dialog = false
+       },
+         late() {
+           const data = {
+             method: 'to_end',
+             token: this.token,
+             faculty: this.faculty
+           }
+           console.log(data)
+             axios.post("https://1nform.ru/school/api/queue/", data).then((resp) =>{
+               console.log(resp)
+               this.start()
+               this.late_dialog = false
+             })
+           }
+       },
+       created() {
+
+       }
+    })
+  </script>
+</body>
+</html>

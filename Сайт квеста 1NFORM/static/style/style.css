@@ -1,0 +1,29 @@
+@font-face {
+ font-family: "Museo Cyrl 300"; /* Имя шрифта */
+ src: url("../fonts/MuseoCyrl300.otf"); /* Путь к файлу со шрифтом */
+
+}
+
+@font-face {
+ font-family: "Museo Cyrl 700"; /* Имя шрифта */
+ src: url("../fonts/MuseoCyrl700.otf"); /* Путь к файлу со шрифтом */
+
+}
+
+@font-face {
+ font-family: "Museo Cyrl 900"; /* Имя шрифта */
+ src: url("../fonts/MuseoCyrl900.otf"); /* Путь к файлу со шрифтом */
+
+}
+
+@font-face {
+ font-family: "Museo Cyrl 500"; /* Имя шрифта */
+ src: url("../fonts/MuseoCyrl500.otf"); /* Путь к файлу со шрифтом */
+
+}
+
+@font-face {
+ font-family: "Museo Cyrl 100"; /* Имя шрифта */
+ src: url("../fonts/MuseoCyrl100.otf"); /* Путь к файлу со шрифтом */
+
+}

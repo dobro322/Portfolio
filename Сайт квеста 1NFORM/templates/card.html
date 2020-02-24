@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
+  <link href="{{ url_for("static", filename="style/vuetify.min.css") }}" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="theme-color" content="#2f2f2f">
+  <title>Карточка участника</title>
+  <link rel="shortcut icon" href="{{ url_for("static", filename="img/favicon.png") }}" type="image/png">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-content >
+        <v-container>
+          <v-layout row align-center>
+            <v-flex xs12 lg6 offset-lg3>
+              <v-card class="grey--text text--darken-3" style="font-family:'Museo Cyrl 300'">
+                <v-card-title class='text-xs-center'>
+                  <v-layout column align-center>
+                    <v-flex>
+                      <v-img min-width='250' src="{{ url_for("static", filename="img/inform.png") }}"></v-img>
+                    </v-flex>
+                    <v-flex>
+                      <div style="font-size:35px; font-family:'Museo Cyrl 700'" class="pt-4">[[ name ]]</div>
+                      <div style="font-size:25px; font-family:'Museo Cyrl 300'">[[ faculty ]]</div>
+                    </v-flex>
+                  </v-layout>
+                </v-card-title>
+                <v-card-text style="font-size:25px" >
+                  <div v-if='sobes'>
+                  Собеседования начнутся в 14:30, следите за страницей<br>
+                  Ваши отделы:
+                  <div v-for="dep in deps" style="font-family:'Museo Cyrl 900'"> • [[ dep ]]</div>
+                  <div>
+                    <br>
+                    Мастер-класс по [[ secondary ]]:
+                    <div class='text-xs-center' style="font-size:50px; font-family:'Museo Cyrl 900'">
+                      [[ cab_number ]]<br>13:50
+                    </div>
+                  </div>
+                  </div>
+                  <div v-else>
+                    <div v-if="!passed">
+                      <div class="text-xs-center orange--text" style="font-size:30px; font-family:'Museo Cyrl 900'">Собеседование</div>
+                      Аудитория:
+                      <div class='text-xs-center' style="font-size:50px; font-family:'Museo Cyrl 900'">
+                        [[ sob_cab ]]
+                      </div>
+                      Ваш номер очереди:
+                      <div class='text-xs-center' style="font-size:50px; font-family:'Museo Cyrl 900'">
+                        [[ queue_number ]]
+                      </div>
+                      Перед вами в очереди:
+                      <div class='text-xs-center' style="font-size:50px; font-family:'Museo Cyrl 900'">
+                        [[ pre_count ]]
+                      </div>
+                      Скоротать время можешь на кофе-брейке в:
+                      <div class='text-xs-center' style="font-size:50px; font-family:'Museo Cyrl 900'">
+                        527/2<br>529/2
+                      </div>
+                      Ваши отделы:
+                      <div v-for="dep in deps" style="font-family:'Museo Cyrl 900'"> • [[ dep ]]</div>
+                    </div>
+                    <div v-else>
+                      <div class="text-xs-center">
+                        Собеседование закончено!<br>
+                        Теперь вы можете отправиться на мастер-класс по приемной комиссии, который пройдет:
+                         <div style="font-size:50px; font-family:'Museo Cyrl 900'">503/2</div>
+                         <div style="font-size:50px; font-family:'Museo Cyrl 900'">15:40</div>
+                           Не забудь про кофе-брейки в:
+                         <div class='text-xs-center' style="font-size:50px; font-family:'Museo Cyrl 900'">
+                           527/2<br>529/2
+                         </div>
+                         Ваши отделы:
+                         <div v-for="dep in deps" style="font-family:'Museo Cyrl 900'"> • [[ dep ]]</div>
+                      </div>
+                    </div>
+                  </div>
+                </v-card-text>
+              </v-card>
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-content>
+    </v-app>
+  </div>
+
+  <script src="{{ url_for("static", filename="js/vue.js") }}"></script>
+  <script src="{{ url_for("static", filename="js/vuetify.js") }}"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+    new Vue({
+       el: '#app',
+       delimiters: ['[[', ']]'],
+       data() {
+         return {
+           name: false,
+           faculty: false,
+           sobes: false,
+           secondary: false,
+           sob_cab: null,
+           pre_count: null,
+           sobes_time: new Date(2019, 4, 19, 14, 30, 0),
+           queue_number: null,
+           passed: false,
+           secondaries: ['SMM','Event-отдел','Фильтрация'],
+           cab_number: null,
+           cabinet:[
+             {
+               name:'Фильтрация',
+               number:'509/2'
+             },
+             {
+               name:'Event-отдел',
+               number:'511/2'
+             },
+             {
+               name:'Фандрайзинг',
+               number:'513/2'
+             },
+             {
+               name:'SMM',
+               number:'515/2'
+             }
+           ],
+           deps: ['Серфер','Собеседник','Event-отдел','Фандрайзинг','Приемная комиссия']
+         }
+       },
+       created() {
+         const time = new Date()
+         if (time < this.sobes_time){
+           this.sobes= true
+           const data = {
+             method: 'check_user',
+             token: '{{ token }}'
+           }
+           axios.post("https://1nform.ru/school/api/user/", data).then((resp)=>{
+             this.faculty = resp.data.faculty
+             this.name = resp.data.name
+             this.deps = resp.data.deps.map(a =>{return a.name})
+             this.secondary = this.deps.includes("Фандрайзинг") ? "Фандрайзинг" : this.deps.find(dep => { return this.secondaries.includes(dep)})
+             this.cab_number = this.cabinet.find(a => {return a.name===this.secondary}).number
+           })
+         }
+         else{
+           this.sobes= false
+           const data = {
+             method: 'queue',
+             token: '{{ token }}'
+           }
+           axios.post("https://1nform.ru/school/api/user/", data).then((resp)=>{
+             this.passed = resp.data.user.queue.passed
+             this.faculty = resp.data.user.faculty
+             this.name = resp.data.user.name
+             this.deps = resp.data.user.deps.map(a =>{return a.name})
+             if(!this.passed){
+               this.queue_number = resp.data.user.queue.number
+               this.sob_cab = resp.data.cabinet.number
+               this.pre_count = resp.data.pre_count
+               if (this.pre_count === 0){
+                 this.pre_count = 'Заходите!'
+               }
+             }
+           })}
+         setInterval(a => {
+         const time = new Date()
+         if (time < this.sobes_time){
+           this.sobes= true
+           const data = {
+             method: 'check_user',
+             token: '{{ token }}'
+           }
+           axios.post("https://1nform.ru/school/api/user/", data).then((resp)=>{
+             this.faculty = resp.data.faculty
+             this.name = resp.data.name
+             this.deps = resp.data.deps.map(a =>{return a.name})
+             this.secondary = this.deps.includes("Фандрайзинг") ? "Фандрайзинг" : this.deps.find(dep => { return this.secondaries.includes(dep)})
+             this.cab_number = this.cabinet.find(a => {return a.name===this.secondary}).number
+           })
+         }
+         else{
+           this.sobes= false
+           const data = {
+             method: 'queue',
+             token: '{{ token }}'
+           }
+           axios.post("https://1nform.ru/school/api/user/", data).then((resp)=>{
+             this.passed = resp.data.user.queue.passed
+             this.faculty = resp.data.user.faculty
+             this.name = resp.data.user.name
+             this.deps = resp.data.user.deps.map(a =>{return a.name})
+             if(!this.passed){
+               this.queue_number = resp.data.user.queue.number
+               this.sob_cab = resp.data.cabinet.number
+               this.pre_count = resp.data.pre_count
+               if (this.pre_count === 0){
+                 this.pre_count = 'Заходите!'
+               }
+             }
+           })
+
+         }},5000)
+       }
+    })
+  </script>
+</body>
+</html>

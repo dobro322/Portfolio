@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+  <link href="{{ url_for("static", filename="style/vuetify.min.css") }}" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-content>
+        <v-layout>
+          <v-flex xs4 offset-xs4>
+            <v-img :src="'https://www.sut.ru/doci/market/sut_logo_new.png'"></v-img>
+          </v-flex>
+        </v-layout>
+
+        <v-layout v-if="tv" row>
+          <v-flex v-for="fac in tv" :key="fac.faculty">
+            <v-layout column>
+              <v-flex text-xs-center class="display-4">[[ fac.faculty ]]</v-flex>
+              <v-flex text-xs-center v-for="client in fac.items.filter(a=>{return a.operator})" :key="client.token">
+                <v-card dark :class="`${color_list(fac.faculty)} ${fac.faculty} ma-2`">
+                  <v-layout row wrap>
+                    <v-flex style="font-size: 60px" xs12 class="font-weight-black">
+                      Клиент <div style="font-size: 90px">[[client.faculty]]-[[client.order]]</div>
+                    </v-flex>
+                    <v-flex style="font-size: 60px" xs12 class="font-weight-bold">
+                      Окно [[client.operator]]
+                    </v-flex>
+                  </v-layout>
+                </v-card>
+              </v-flex>
+              <v-flex text-xs-center class="py-4 display-2">И ещё [[ fac.items.length - fac.items.filter(a => {return a.operator}).length ]] человек[[[2,3,4].includes(fac.items.length - fac.items.filter(a => {return a.operator}).length) ? 'a' : '' ]]</v-flex>
+            </v-layout>
+          </v-flex>
+        </v-layout>
+        <v-layout v-else column>
+          <v-flex align-center justify-center>
+            <v-card max-width="500">
+              <v-card-title class="display-2">Выберите факультеты</v-card-title>
+              <v-card-text>
+                <div v-for="fac in fac_list">
+                  <v-switch :label="fac" color="orange" v-model="fac_switch" :value="fac" :key="fac" name="faculty"></v-switch>
+                </div>
+              </v-card-text>
+              <v-card-actions>
+                <v-btn @click="show_faculties">Отправить</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-flex>
+        </v-layout>
+      </v-content>
+    </v-app>
+  </div>
+
+  <script src="{{ url_for("static", filename="js/vue.js") }}"></script>
+  <script src="{{ url_for("static", filename="js/vuetify.js") }}"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+  new Vue({
+    el: '#app',
+    delimiters:['[[',']]'],
+    data() {
+      return {
+        faculties: [],
+        tv: null,
+        fac_switch: [],
+        fac_list: ['ИСиТ','ИКСС','РТС','ГФ','ВУЦ','ИНО','ФП','ЦЭУБИ']
+
+      }
+    },
+    computed :{
+    },
+    methods:{
+      show_faculties(){
+        const data = {
+          faculties: this.fac_switch
+        }
+        axios.post("http://ochered.dobroplat.beget.tech/tv/api", data).then((resp) => {
+          this.tv = resp.data
+          console.log(this.tv)
+          setInterval(a =>{
+            axios.post("http://ochered.dobroplat.beget.tech/tv/api", data).then((new_resp) => {
+              this.tv = new_resp.data
+            })
+          }, 5000)
+        })
+      },
+      color_list(fac) {
+        {
+          colors = {
+            "ИСиТ": 'purple lighten-3',
+            "ИКСС": 'orange lighten-1',
+            "РТС": 'red lighten-1',
+            "ВУЦ": 'green lighten-1',
+            "ГФ": 'lime lighten-2',
+            "ЦЭУБИ": 'light-blue lighten-1',
+            "ФП": 'blue-grey darken-1',
+            "ИНО": 'indigo lighten-2'
+          }
+          return colors[fac]
+        }
+      }
+    },
+    created() {
+
+    }
+  })
+  </script>
+  <style>
+  .ИКСС{
+    color:orange
+  }
+  .РТС{
+
+  }
+  .ИСиТ{
+
+  }
+  .ГФ{
+
+  }
+  .ЦЭУБИ{
+
+  }
+  .ВУЦ{
+
+  }
+  .ИНО{
+
+  }
+  .ФП{
+
+  }
+  </style>
+</body>
+</html>

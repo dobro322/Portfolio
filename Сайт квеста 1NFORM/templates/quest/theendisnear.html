@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
+  <link href="{{ url_for("static", filename="style/vuetify.min.css") }}" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="theme-color" content="#2f2f2f">
+  <title>Чем</title>
+  <link rel="shortcut icon" href="{{ url_for("static", filename="img/favicon.png") }}" type="image/png">
+</head>
+<body>
+  <div id="app">
+    <v-app>
+        <v-content style="background-color: #2f2f2f">
+          <v-container grid-list-xl text-xs-center fill-height>
+            <v-layout wrap row justify-center align-center>
+              <v-flex lg4>
+                <v-img max-width ="500" src="https://pbs.twimg.com/profile_images/664359137631932416/CzA9AZWN.jpg">
+                </v-img>
+              </v-flex>
+              <v-flex md12 xs12 class="white--text headline font-weight-thin" >
+                3 1; 3 2; 4 -5; 7 1; 6 1; 17 2; 12 -1; 13 1; 22 3; 2 -4; 17 -2; 10 2; 12 1; 16 5; 16 2; 10 4; 15 -10; 17 1
+              </v-flex>
+              <form method="GET">
+                <v-flex md12 xs12>
+                  <v-text-field dark label="Одно слово" name="key"></v-text-field>
+                </v-flex>
+                <v-flex md12 xs12>
+                  <v-btn block dark type="submit">Отправить</v-btn>
+                </v-flex>
+              </form>
+            </v-layout>
+          </v-container>
+        </v-content>
+    </v-app>
+  </div>
+
+  <script src="{{ url_for("static", filename="js/vue.js") }}"></script>
+  <script src="{{ url_for("static", filename="js/vuetify.js") }}"></script>
+  <script>
+    new Vue({
+       el: '#app'
+    })
+  </script>
+</body>
+</html>

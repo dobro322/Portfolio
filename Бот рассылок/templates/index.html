@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-content>
+        <v-container>
+
+          <v-dialog
+            v-model="initialize_dial.visible"
+            max-width="500px"
+          >
+            <v-card class="pa-4">
+              <v-layout column>
+                <div>
+                  <p class="display-1">Ввод группы</p>
+                </div>
+                <v-form>
+                  <v-text-field
+                    label="Токен группы"
+                    hint="С доступом на сообщения и стену"
+                    v-model="initialize_dial.token"
+                    color="purple"
+                  >
+                  </v-text-field>
+                  <v-text-field
+                    label="Код подтверждения"
+                    hint="В настройках Callback Api"
+                    v-model="initialize_dial.conf_token"
+                    color="purple"
+                  >
+                  </v-text-field>
+                </v-form>
+                <v-layout justify-space-around row>
+                  <v-btn
+                    text
+                    color="green"
+                    @click="initialize_dial.conf_func"
+                  >
+                    Подтвердить
+                  </v-btn>
+                </v-layout>
+              </v-layout>
+            </v-card>
+          </v-dialog>
+
+          <v-dialog
+            v-model="dialog.visible"
+            max-width="500px"
+          >
+            <v-card class="pa-4">
+              <v-layout column>
+                <div>
+                  <p class="display-1">[[dialog.header]]</p>
+                </div>
+                <v-form>
+                  <v-text-field
+                    label="Название подписки"
+                    hint="Это будет выводиться в кнопке бота"
+                    v-model="dialog.sub.name"
+                    color="purple"
+                  >
+                  </v-text-field>
+                  <v-text-field
+                    label="Ключевое слово"
+                    hint="Это будет искаться в каждом новом посте"
+                    v-model="dialog.sub.keyword"
+                    color="purple"
+                  >
+                  </v-text-field>
+                  <v-textarea
+                    label="Сопровождающий текст"
+                    hint="Этот тест будет присутствовать в каждой рассылке рубрики"
+                    v-model="dialog.sub.predict_text"
+                    color="purple"
+                  >
+                  </v-textarea>
+                </v-form>
+                <v-layout justify-space-around row>
+                  <v-btn
+                    text
+                    color="green"
+                    @click="dialog.sub.confirm_func"
+                  >
+                    Подтвердить
+                  </v-btn>
+                  <v-btn
+                    text
+                    @click="dialog.visible = false"
+                  >
+                    Отменить
+                  </v-btn>
+                </v-layout>
+              </v-layout>
+            </v-card>
+          </v-dialog>
+
+          <v-layout v-if="!logged" column align-center>
+            <v-flex text-center>
+              <v-card class="pa-2" text max-width="500px" min-width="300px">
+                <v-layout column>
+                  <p class="font-weight-bold display-1">Бот рассылки</p>
+                  <v-text-field
+                    label="Логин"
+                    class="headline"
+                    color="purple"
+                    v-model="login"
+                  >
+                  </v-text-field>
+                  <v-text-field
+                    label="Пароль"
+                    color="purple"
+                    class="headline"
+                    type="password"
+                    :disabled="login.length > 3 ? false : true"
+                    v-model="password"
+                    @keyup.enter="authorize"
+                  >
+                  </v-text-field>
+                  <v-btn @click="authorize" text block color="purple" :disabled="password.length > 5 ? false : true">Войти</v-btn>
+                </v-layout>
+              </v-card>
+            </v-flex>
+          </v-layout>
+
+          <v-layout
+            v-else
+            column
+            align-center
+          >
+            <v-flex
+              text-center
+            >
+            <v-card text max-width="600px" min-width="300px">
+              <v-layout column>
+                <p class="font-weight-bold display-1">Подписки</p>
+                <v-flex>
+                  <v-avatar size="100px">
+                    <v-img :src="group.pic"></v-img>
+                  </v-avatar>
+                </v-flex>
+                <p class="headline">[[group.name]]</p>
+                <v-divider></v-divider>
+                <div class="px-4" v-for="sub in subscriptions">
+
+                  <div class="text-right">
+                    <v-btn small icon><v-icon small class="pa-1 red--text" @click="delete_sub(sub)">mdi-close</v-icon></v-btn>
+                    <v-btn small icon><v-icon small class="pa-1 blue--text" @click="edit_sub(sub)">mdi-pen</v-icon></v-btn>
+                  </div>
+                  <div class="headline">[[sub.name]]</div>
+                  <v-layout row wrap>
+                    <v-flex xs6>
+                      <p>Ключевое слово:</p>
+                      <p style="color:green">[[sub.keyword]]</p>
+                    </v-flex>
+                    <v-flex xs6>
+                      <p>Количество подписчиков:</p>
+                      <p class="headline" style="color:green">[[sub.followers]]</p>
+                    </v-flex>
+                    <v-flex xs12>
+                      <p>Сопровождающий текст:</p>
+                      <p style="color:green">[[sub.predict_text]]</p>
+                    </v-flex>
+                  </v-layout>
+                  <v-divider></v-divider>
+                </div>
+                <v-btn v-if="subscriptions.length < 10" @click="new_sub" text block color="green">+ Добавить</v-btn>
+              </v-layout>
+            </v-card>
+            </v-flex>
+          </v-layout>
+
+        </v-container>
+      </v-content>
+    </v-app>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      vuetify: new Vuetify(),
+      delimiters:["[[", "]]"],
+      methods:{
+        get_community(){
+          const data = {
+            group_id: this.user.group_id
+          }
+          axios.post("http://mailingbot.studsut.beget.tech/getCommunity", data).then((resp)=>{
+            this.group = resp.data
+          })
+        },
+        get_subs(){
+          const data = {
+            group_id: this.user.group_id
+          }
+          axios.post("http://mailingbot.studsut.beget.tech/getSubs", data).then((resp)=>{
+            var temp = []
+            for (var i = 0; i < resp.data.length; i++){
+              temp.push({
+                id: resp.data[i][0],
+                name: resp.data[i][1],
+                keyword: resp.data[i][2],
+                predict_text: resp.data[i][3],
+                followers: resp.data[i][5]
+              })
+            }
+            this.subscriptions = temp
+          })
+        },
+        initialization(){
+          this.initialize_dial = {
+            visible: true,
+            token: "",
+            conf_token: "",
+            conf_func: () => {
+              const data = {
+                login: this.user.name,
+                group_token: this.initialize_dial.token,
+                conf_token: this.initialize_dial.conf_token
+              }
+              axios.post("http://mailingbot.studsut.beget.tech/setAdminGroup", data).then((resp)=>{
+                this.initialize_dial.visible = false
+                this.user.group_id = resp.data.group_id
+                console.log(resp.data)
+                this.get_subs()
+                this.get_community()
+              })
+            }
+          }
+        },
+        authorize(){
+          const data = {
+            login: this.login,
+            password: this.password
+          }
+          axios.post("http://mailingbot.studsut.beget.tech/getAdmin", data).then((resp)=>{
+            this.user.name = resp.data.login
+            this.user.group_id = resp.data.group_id
+            this.logged = true
+            if (this.user.group_id > 0){
+              this.get_subs()
+              this.get_community()
+            }
+            else {
+              this.initialization()
+            }
+          })
+        },
+        new_sub(){
+          this.dialog.visible = true
+          this.dialog.sub = {
+            name: "",
+            keyword: "",
+            predict_text: "",
+            confirm_func: () => {
+              const data = {
+                name: this.dialog.sub.name,
+                keyword: this.dialog.sub.keyword,
+                text: this.dialog.sub.predict_text,
+                group_id: this.user.group_id
+              }
+              this.dialog.visible = false
+              axios.post("http://mailingbot.studsut.beget.tech/newSubType", data).then( (resp) => {
+                this.get_subs()
+              })
+            }
+          }
+        },
+        delete_sub(sub){
+          const data = {
+            sub_id: sub.id
+          }
+          axios.post("http://mailingbot.studsut.beget.tech/removeSub", data).then((resp) => {
+            this.subscriptions.splice(this.subscriptions.indexOf(sub), 1)
+          })
+        },
+        edit_sub(sub){
+          this.dialog.visible = true
+          this.dialog.sub = {
+            name: sub.name,
+            keyword: sub.keyword,
+            predict_text: sub.predict_text,
+            id: sub.id,
+            confirm_func: () => {
+              const data = {
+                name: this.dialog.sub.name,
+                keyword: this.dialog.sub.keyword,
+                text: this.dialog.sub.predict_text,
+                id: this.dialog.sub.id
+              }
+              axios.post("http://mailingbot.studsut.beget.tech/editSub", data).then( (resp) => {
+                this.get_subs()
+                this.dialog.visible = false
+              })
+            }
+          }
+        }
+      },
+      data(){
+        return{
+          login: "",
+          password: "",
+          logged: false,
+          initialize_dial: {},
+          user: {
+            name: "",
+            group_id: ""
+          },
+          group: {},
+          dialog: {
+            visible: false,
+            header: "Hello world",
+            sub: {
+              name: "",
+              keyword: "",
+              predict_text: "",
+              confirm_func: null
+            }
+          },
+          subscriptions: []
+        }
+      }
+    })
+  </script>
+</body>
+</html>

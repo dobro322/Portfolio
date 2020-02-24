@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
+  <link href="{{ url_for("static", filename="style/vuetify.min.css") }}" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="theme-color" content="#2f2f2f">
+  <title>В</title>
+  <link rel="shortcut icon" href="{{ url_for("static", filename="img/favicon.png") }}" type="image/png">
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-content style="background-color: #2f2f2f">
+        <v-container fill-height>
+          <v-layout row justify-center align-center>
+            <v-flex md4 xs12 class="white--text ma-4 pa-4 title font-weight-thin" style="text-align: justify">
+                И чего вы этим добиваетесь?
+                <br><br>Вы действительно думаете, что справитесь с этим?
+                <br><br>А что вы скажете своим близким?
+                <br><br>Неужели вы просто будете скрывать от них правду?
+                <br><br>.
+                <br><br>Получить дальнейшую инструкцию будет несложно
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-content>
+    </v-app>
+  </div>
+
+  <script src="{{ url_for("static", filename="js/vue.js") }}"></script>
+  <script src="{{ url_for("static", filename="js/vuetify.js") }}"></script>
+  <script>
+    new Vue({ el: '#app' })
+  </script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
+  <meta charset="UTF-8">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <title>Таблица групп</title>
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-content>
+        <v-container>
+          <div class="display-2">[[ filter ]]
+            [[ groups.filter(a => {return a.faculty === filter || filter === 'Все'}).filter(a => {return a.articles.first[0] && a.articles.second[0]}).length ]]
+            / [[ groups.filter(a => {return a.faculty === filter || filter === 'Все'}).length ]]
+          </div>
+          <div>[[  groups.filter(a => {return a.faculty === filter || filter === 'Все'}).filter(a => {return a.articles.first[0] && a.articles.second[0]}).length / groups.filter(a => {return a.faculty === filter || filter === 'Все'}).length * 100]]%</div>
+          <v-layout column>
+            <v-flex>
+              <v-layout wrap row>
+                <v-flex xs6 md2 v-for="faculty in faculties" :key="faculty">
+                  <v-switch color="orange" v-model="filter" :value="faculty" :name="faculty" :label="faculty">[[ faculty ]]</v-switch>
+                </v-flex>
+              </v-layout>
+            </v-flex>
+            <v-flex>
+              <v-btn @click="update">Обновить данные</v-btn>
+            </v-flex>
+            <v-flex>
+              <v-layout class="title" row>
+                <v-flex xs6 md2>
+                  <div>
+                    Номер группы
+                  </div>
+                </v-flex>
+                <v-flex xs6 md2>
+                  <div>
+                    Факультет
+                  </div>
+                </v-flex>
+              </v-layout>
+            </v-flex>
+            <v-flex v-for="group in groups.filter(a => {return a.faculty === filter || filter === 'Все'}).sort((a,b) => {return a.course > b.course ? 1: -1})" :key="group.name">
+              <v-card dark :color="group.articles.first[0] && group.articles.second[0] ? 'green' : 'red'" class="ma-1 pa-2">
+                <v-layout wrap class="title" row>
+                  <v-flex xs6 md2>
+                    <div>
+                      [[ group.name ]]
+                    </div>
+                  </v-flex>
+                  <v-flex xs6 md2>
+                    <div>
+                      [[ group.faculty ]]
+                    </div>
+                  </v-flex>
+                  <v-flex xs12 md8>
+                    <v-layout column>
+                      <v-flex>
+                        Первый семестр: [[ group.articles.first.length ]] предметов
+                      </v-flex>
+                      <v-flex>
+                        Второй семестр: [[ group.articles.second.length ]] предметов
+                      </v-flex>
+                    </v-layout>
+                  </v-flex>
+                </v-layout>
+              </v-card>
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-content>
+    </v-app>
+  </div>
+
+  <script src="{{ url_for("static", filename="js/vue.min.js") }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+    new Vue({
+       el: '#app',
+       delimiters: ['[[', ']]'],
+       data() {
+         return {
+            faculties: ["Все","ИКСС","РТС","ИСиТ","Гуманитарный","ФП","ИВО","ЦЭУБИ","СПбКТ"],
+            groups: [],
+            filter: 'Все'
+         }
+       },
+       methods:{
+         update() {
+           axios.post("https://educationsut.ru/api/all").then((resp) => {
+             console.log(resp)
+             this.groups = resp.data
+           })
+         }
+
+       },
+       created(){
+          this.update()
+       }
+    })
+  </script>
+</body>
+</html>

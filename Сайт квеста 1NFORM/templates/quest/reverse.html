@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<!-- По статистике, до этой стадии не доходят 95% искателей -->
+<!-- Find our tmhudqrd, the tmhudqrd of 1NFORM -->
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
+  <link href="{{ url_for("static", filename="style/vuetify.min.css") }}" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="theme-color" content="#2f2f2f">
+  <title>Ботец</title>
+  <link rel="shortcut icon" href="{{ url_for("static", filename="img/favicon.png") }}" type="image/png">
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-content style="background-color: #2f2f2f">
+        <v-container fill-height>
+          <v-layout row justify-center align-center>
+            <v-flex md4 xs12 class="white--text ma-4 pa-4 title font-weight-thin" style="text-align: justify">
+                Полторы тысяч лет назад все знали, что Земля была центром вселенной.
+                <br><br>Пятьсот лет назад все знали, что Земля плоская.
+                <br><br>Пятнадцать минут назад ты знал, что тебе доступна вся информация посредством интернета.
+                <br><br>Представь, что ты будешь «знать» завтра.
+                <br><br>Возможно, для этих знаний тебе придется встать на место творца.
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-content>
+    </v-app>
+  </div>
+
+  <script src="{{ url_for("static", filename="js/vue.js") }}"></script>
+  <script src="{{ url_for("static", filename="js/vuetify.js") }}"></script>
+  <script>
+    new Vue({
+       el: '#app'
+    })
+  </script>
+</body>
+</html>

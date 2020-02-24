@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
+  <link href="{{ url_for("static", filename="style/vuetify.min.css") }}" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <title>Школа 1NFORM</title>
+  <link rel="shortcut icon" href="{{ url_for("static", filename="img/favicon.png") }}" type="image/png">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+  <title>Регистрация</title>
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-content>
+        <v-container>
+          <v-layout column align-center>
+            <form method="GET" action='card' id='form'>
+            <v-card style="font-family:'Museo Cyrl 300'" max-width="500px">
+              <v-card-title><v-img max-width="500px" src="{{ url_for("static", filename="img/inform.png") }}"></v-img></v-card-title>
+              <v-card-text>
+                <div style="font-size:30px">Основные отделы (можно оба)* : </div>
+                <v-switch color="orange" label="Собеседник" v-model='companion' value='true' name='companion'></v-switch>
+                <v-switch color="orange" label="Серфер" v-model='surfer' value='true' name='surfer'></v-switch>
+                <div style="font-size:30px">Второстепенные отделы*: </div>
+                <v-switch color="orange" @change="Lol(n)" v-for="n in secondaryDepartments" :label="n" :key="n" :value="n" v-model="secondaryDep" name="secondary"></v-switch>
+                <v-checkbox color="orange" :disabled="secondaryDep != 'Event-отдел'" label="Фандрайзинг" value='true' v-model="fundraising" name='fundraising'></v-checkbox>
+                <div style="font-size:30px">Приемная комиссия:</div>
+                <div>Вне зависимости от того, попадете вы в основной состав 1NFORM или нет, вы можете принять участие в работе приемной комиссии<br>Хотите?</div>
+                <v-switch color="orange" label="Приемная комиссия" v-model="pk" value='true' name='pk'></v-switch>
+                <div class="text-xs-right">*обязательно</div>
+              </v-card-text>
+              <v-card-actions>
+                <v-layout column text-xs-center>
+                  <v-dialog v-model="confirmation" max-width="300">
+                    <v-btn dark color="orange" slot="activator">Отправить</v-btn>
+                    <v-card style="font-family:'Museo Cyrl 300'">
+                      <v-layout column text-xs-center>
+                        <v-card-text style="font-size:20px">
+                          <div style="font-size:40px">Вы уверены?</div>
+                          <div v-if="companion">Собеседник</div>
+                          <div v-if="surfer">Сёрфер</div>
+                          [[ secondaryDep ]]
+                          <div v-if="secondaryDep==='Event-отдел' && fundraising">Фандрайзер</div>
+                          <div v-if="pk">Приемная комиссия</div>
+                        </v-card-text>
+                        <v-card-actions>
+                          <v-layout>
+                            <v-flex>
+                              <v-btn type="submit" dark flat color="orange" form='form'>Да</v-btn>
+                            </v-flex>
+                            <v-flex>
+                              <v-btn @click="confirmation = false" dark flat color="red" >Нет</v-btn>
+                            </v-flex>
+                          </v-layout>
+                        </v-card-actions>
+                      </v-layout>
+                    </v-card>
+                  </v-dialog>
+                </v-layout>
+              </v-card-actions>
+            </v-card>
+            </form>
+          </v-layout>
+        </v-container>
+      </v-content>
+    </v-app>
+  </div>
+
+  <script src="{{ url_for("static", filename="js/vue.js") }}"></script>
+  <script src="{{ url_for("static", filename="js/vuetify.js") }}"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+  new Vue({
+    el: '#app',
+    delimiters: ['[[', ']]'],
+    data() {
+      return {
+        companion: false,
+        surfer: false,
+        secondaryDepartments: ['Фильтрация','SMM','Event-отдел'],
+        secondaryDep: "",
+        fundraising: false,
+        pk: false,
+        confirmation: false
+      }
+    },
+    methods:{
+      Lol(a) {
+        this.fundraising = a != 'Event-отдел' ? false: this.fundraising
+      },
+      get_vk(a) {
+        data = {
+          client_id:6630817,
+          display: 'page',
+          redirect_uri: 'http://1nform.ru/card',
+          scope:'offline',
+          response_type:'code',
+          v:'5.80'
+        }
+        axios.get('https://oauth.vk.com/authorize',data).then((resp)=>{
+        })
+      }
+    }
+  })
+  </script>
+</body>
+</html>

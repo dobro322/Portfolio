@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
+  <link href="{{ url_for("static", filename="style/vuetify.min.css") }}" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <title>Таблица участников</title>
+  <link rel="shortcut icon" href="{{ url_for("static", filename="img/favicon.png") }}" type="image/png">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-content>
+        <v-container style="font-family:'Museo Cyrl 300'">
+          <v-layout row wrap>
+            <v-flex v-for="dep in deps" :key="dep.name" xs12 md4>
+              <v-btn @click="filter=dep.name" large flat color="orange" class="ma">
+                <v-icon left color="orange">
+                  [[ dep.icon ]]
+                </v-icon>
+                [[ dep.name ]]
+              </v-btn>
+            </v-flex>
+          </v-layout>
+          <v-layout wrap row>
+            <v-flex xs12 md4 v-for="fac in faculties"  :key="fac">
+              <v-btn large dark color="blue-grey" @click="fac_filter = fac">[[ fac ]]</v-btn>
+            </v-flex>
+            <v-flex xs12 md4 >
+              <v-btn @click="empty_particiapnt=!empty_particiapnt">Переключение режимов</v-btn>
+            </v-flex>
+            <v-flex xs12 md4 >
+              <v-btn @click="queued=!queued">Переключение заполненных</v-btn>
+            </v-flex>
+            <v-flex xs12 md4 >
+              <v-btn @click="passed=!passed">Состоят в отделах</v-btn>
+            </v-flex>
+            <v-flex xs12 md4 >
+              <v-btn @click="reserved=!reserved">Отобразить зарезервированных</v-btn>
+            </v-flex>
+          </v-layout>
+          <div class="text-xs-center" style="font-family:'Museo Cyrl 700'; font-size:50px">
+             [[filter]], [[ fac_filter ]], [[ computed_filter.length]]
+             <div v-if="empty_particiapnt">Не выбрали направления</div>
+             <div v-if="queued">Не прошли собеседование</div>
+             <div v-if="passed">Есть хотя бы в одном отделе</div>
+             <div v-if="reserved">Зарезервированные</div>
+          </div>
+          <v-layout text-xs-center column>
+            <v-dialog max-width="300" v-model="delete_dialog">
+              <v-card>
+                <v-card-title >
+                  <div class="text-xs-center" style="font-family:'Museo Cyrl 700'; font-size:30px">
+                    Удалить участника?
+                  </div>
+                </v-card-title>
+                <v-card-actions class="text-xs-center">
+                  <v-layout text-xs-center>
+                    <v-flex>
+                      <v-btn dark color="red">Да</v-btn>
+                    </v-flex>
+                    <v-flex>
+                      <v-btn dark color="green">Нет</v-btn>
+                    </v-flex>
+                  </v-layout>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+            <v-dialog max-width="500" v-model="change_dialog">
+              <v-card>
+                <v-card-title >
+                  <div class="text-xs-center" style="font-family:'Museo Cyrl 700'; font-size:30px">
+                    Обновить информацию об участнике<br>
+                    [[ updating.name ]]
+                  </div>
+                </v-card-title>
+                <v-card-text>
+                    <v-layout column>
+                      <v-flex>
+                        Комментарий к участнику:
+                        <v-textarea v-model="updating.comment"></v-textarea>
+                      </v-flex>
+                      <v-flex v-for="dep in updating.deps" :key="dep.name">
+                        [[ dep.name ]]
+                        <v-textarea v-model="dep.comment"></v-textarea>
+                      </v-flex>
+                    </v-layout>
+                </v-card-text>
+                <v-card-actions class="text-xs-center">
+                  <v-layout column>
+                    <v-flex>
+                      <v-layout row wrap>
+                        <v-flex xs12 md4 v-for="dep in updating_deps" :key="dep.name">
+                          <v-switch color="orange" v-model="dep.exists" @change="include_deps(dep.name)" :label="dep.name">
+
+                          </v-switch>
+                        </v-flex>
+                        </v-layout>
+                    </v-flex>
+                    <v-flex>
+                      <v-layout row wrap>
+                      <v-flex>
+                        <v-btn xs6 dark @click="change_dialog = false" color="red">Отменить</v-btn>
+                      </v-flex>
+                      <v-flex>
+                        <v-btn xs6 dark color="green" @click="change_participant">Подтвердить</v-btn>
+                      </v-flex>
+                    </v-layout>
+                    </v-flex>
+                  </v-layout>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+            <v-flex v-for="part in computed_filter" :key="part.vk">
+              <v-card tile class="mb-2" depressed>
+                <v-layout row wrap>
+                  <v-flex text-xs-center xs12 md2 class="ma-4">
+                    <!-- <v-avatar size="150">
+                      <v-img src="https://pp.userapi.com/c851128/v851128882/f5b6e/A_t8JCZs8Hg.jpg"></v-img>
+                    </v-avatar> -->
+                    <div class="ma-2"style="font-size:20px">[[part.name]]</div>
+                    <br/>
+                    <div>[[part.faculty]]</div>
+                    <div><a :href="'https://vk.com/id' + part.vk" target="_blank">Страница в вк</a></div>
+                    <div>[[ part.phone ]]</div>
+                    <div v-if="part.queue.passed">Прошел собеседование</div>
+                    <div v-else>[[ part.queue.number ]]</div>
+                    <div><v-switch label="Резерв" color="orange" v-model="part.reserve" @change="change_reserve(part)" :name="part.reserve"></v-switch></div>
+                    <v-layout>
+                      <v-flex>
+                        <v-btn icon color="orange" @click="open_change_dialog(part)" dark><v-icon>build</v-icon></v-btn>
+                      </v-flex>
+                      <v-flex>
+                        <v-btn color="red" @click="open_delete_dialog(part)" dark icon><v-icon>delete_forever</v-icon></v-btn>
+                      </v-flex>
+                    </v-layout>
+                  </v-flex>
+                  <v-divider vertical></v-divider>
+                  <v-flex xs12 md3 class="ma-2">
+                    <div class="title pb-2">Комментарий:</div>
+                    <!-- <div v-html="part.comment"></div> -->
+                    <div style="white-space: pre-line" class="text-xs-left">[[ part.comment]]</div>
+                  </v-flex>
+                  <v-divider vertical></v-divider>
+                  <v-flex xs12 md12 lg4>
+                    <v-layout fill-height wrap row>
+                      <v-flex class="pa-2" xl6 xs12 lg6 v-for="dep in part.deps.filter(a => {return a.name === filter || filter === 'Общее'})" :key="dep.name">
+                        <div>
+                          <div class="title pb-2">[[dep.name]]:</div>
+                          <!-- <div v-html="dep.comment"></div> -->
+                          <div style="white-space: pre-line" class="text-xs-left">[[ dep.comment]]</div>
+                        </div>
+                      </v-flex>
+                    </v-layout>
+                  </v-flex>
+                  <v-flex xs12 md2>
+                    <v-layout column>
+                      <v-flex><div class="title px-2 mt-2">Куда берем:</div></v-flex>
+                      <v-flex class="px-2" v-for="n in part.deps" :key="n.name"><v-switch color="orange" :label="n.name" :value="n.name" @change="update_part(part)" v-model="n.passed"></v-switch></v-flex>
+                    </v-layout>
+                  </v-flex>
+                </v-layout>
+              </v-card>
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-content>
+    </v-app>
+  </div>
+
+  <script src="{{ url_for("static", filename="js/vue.js") }}"></script>
+  <script src="{{ url_for("static", filename="js/vuetify.js") }}"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+    new Vue({
+       el: '#app',
+       delimiters:['[[',']]'],
+       data() {
+         return{
+           filter: 'Общее',
+           empty_particiapnt: false,
+           queued: false,
+           passed: false,
+           reserved: false,
+           updating: {},
+           change_dialog: false,
+           delete_dialog: false,
+           deps: [
+             {name:'Общее', icon: 'dashboard'},
+             {name:'Собеседник',icon:'record_voice_over'},
+             {name:'Сёрфер',icon:'search'},
+             {name:'Фильтрация',icon:'lock'},
+             {name:'Event-отдел',icon:'meeting_room'},
+             {name:'SMM',icon:'cast'},
+             {name:'Фандрайзинг',icon:'money'},
+             {name:'Приемная комиссия',icon:'group'},
+           ],
+           fac_filter: 'Все',
+           updating_deps: [
+             {name:'Собеседник', exists: false},
+             {name:'Сёрфер', exists: false},
+             {name:'Фильтрация', exists: false},
+             {name:'Event-отдел', exists: false},
+             {name:'SMM', exists: false},
+             {name:'Фандрайзинг', exists: false},
+             {name:'Приемная комиссия', exists: false},
+           ],
+           faculties: ['Все','ИСиТ','РТС','ГФ','ФП','ИВО','СПбКТ','ЦЭУБИ','ИКСС'],
+           participants: []
+         }
+       },
+       created() {
+         const data = {
+           method: 'all'
+         }
+         axios.post("https://1nform.ru/school/api/queue/", data).then((resp) =>{
+           this.participants = resp.data.sort((a,b) => { return a.queue.number > b.queue.number ? 1 : -1})
+         })
+         setInterval(a=>{
+           axios.post("https://1nform.ru/school/api/queue/", data).then((resp) =>{
+             this.participants = resp.data.sort((a,b) => { return a.queue.number > b.queue.number ? 1 : -1})
+           })
+         },10000)
+       },
+       methods: {
+         change_reserve(user) {
+           const data = {
+             method: 'reserve',
+             vk: user.vk,
+             reserve: user.reserve
+           }
+           axios.post("https://1nform.ru/school/api/user/", data).then((resp) =>{
+             console.log('nice')
+           })
+         },
+         include_deps(dep){
+           if(this.updating.deps.find(a=>{return a.name===dep})){
+             this.updating.deps.splice(this.updating.deps.indexOf(this.updating.deps.find(a => {return a.name === dep})), 1)
+           }
+           else{
+             this.updating.deps.push({
+               name: dep,
+               comment: "",
+               passed: false
+             })
+           }
+         },
+         update_part(arg){
+           console.log(arg)
+           const data = {
+             method: 'update',
+             vk: arg.vk,
+             deps: arg.deps,
+             comment: arg.comment
+           }
+           axios.post("https://1nform.ru/school/api/queue/", data).then((resp) =>{
+              console.log('success')
+           })
+         },
+         change_participant(arg){
+           const data = {
+             method: "update",
+             vk: this.updating.vk,
+             deps: this.updating.deps,
+             comment: this.updating.comment
+           }
+           axios.post("https://1nform.ru/school/api/user/", data).then((resp) =>{
+             console.log(this.participants.find(a => {return a.vk === resp.data.vk}))
+              this.participants.find(a => {return a.vk === resp.data.vk}).deps = resp.data.deps
+              this.change_dialog = false
+            })
+         },
+         delete_participant(arg){
+
+         },
+         open_change_dialog(arg){
+           this.updating = arg
+           depmap = arg.deps.map(a=>{return a.name})
+           for(var i = 0; i<this.updating_deps.length; i++){
+             if(depmap.includes(this.updating_deps[i].name)){
+               this.updating_deps[i].exists = true
+             }
+             else{
+               this.updating_deps[i].exists = false
+             }
+           }
+           this.change_dialog = true
+         },
+         open_delete_dialog(arg){
+
+         }
+       },
+       computed:{
+         computed_fac_filter: function(){
+           return this.fac_filter === "Все" ? this.participants : this.participants.filter(a => {return a.faculty === this.fac_filter })
+         },
+         computed_filter: function(){
+           var filtered = this.filter === "Общее" ? this.computed_fac_filter : this.computed_fac_filter.filter(a => {return a.deps.map(a => {return a.name}).includes(this.filter) })
+           var empty =  this.empty_particiapnt ? filtered.filter(a => {return a.deps.length === 0}) : filtered.filter(a => {return a.deps.length > 0})
+           var queued = this.queued ? empty.filter(a => {return !a.comment}) :  empty
+           var passed = this.passed ? queued.filter(a => {return a.deps.find(b => {return b.passed && b.name != "Приемная комиссия"}) && !a.reserve}) : queued
+           return this.reserved ? passed.filter(a => {return a.reserve}) : passed
+         }
+       }
+    })
+  </script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
+  <link href="{{ url_for("static", filename="style/vuetify.min.css") }}" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-content>
+        <v-container>
+          <div v-if="loading">Загрузка...</div>
+          <v-btn @click="delete_all">Удалить всех</v-btn>
+          <v-btn @click="refill_all">Перезаписать</v-btn>
+          <v-btn @click="random_all">Заполнить случайными</v-btn>
+          <v-btn @click="sort_pk">Распределить для приемки</v-btn>
+        </v-container>
+      </v-content>
+    </v-app>
+  </div>
+
+  <script src="{{ url_for("static", filename="js/vue.js") }}"></script>
+  <script src="{{ url_for("static", filename="js/vuetify.js") }}"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+    new Vue({
+       el: '#app',
+       data(){
+         return{
+           loading: false
+         }
+       },
+       methods:{
+         delete_all(){
+           const data ={
+             method: 'delete_all_users'
+           }
+          this.loading = true
+          axios.post("https://1nform.ru/platondrius", data).then((resp) => {
+            this.loading = false
+          })
+         },
+         random_all(){
+           const data ={
+             method: 'fill_random'
+           }
+          this.loading = true
+          axios.post("https://1nform.ru/platondrius", data).then((resp) => {
+            this.loading = false
+          })
+         },
+         refill_all(){
+           const data ={
+             method: 'refill'
+           }
+          this.loading = true
+          axios.post("https://1nform.ru/platondrius", data).then((resp) => {
+            this.loading = false
+          })
+        },
+        sort_pk(){
+          const data ={
+            method: 'sort_pk'
+          }
+         this.loading = true
+         axios.post("https://1nform.ru/platondrius", data).then((resp) => {
+           this.loading = false
+         })
+        }
+       }
+    })
+  </script>
+</body>
+</html>

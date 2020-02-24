@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+  <link href="{{ url_for("static", filename="style/vuetify.min.css") }}" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-content>
+        <div v-for="course in courses" :key="course.name">[[ course.name ]] - [[ course.faculty ]]</div>
+        <v-dialog width="500">
+          <v-btn slot="activator" >Добавить направление</v-btn>
+          <v-card>
+            <v-card-title>Добавление направления</v-card-title>
+            <v-card-text>
+              <v-text-field v-model="new_course_name" label="Название направления"></v-text-field>
+              <v-text-field v-model="new_course_faculty" label="Название факультета"></v-text-field>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn @click="addCourse">Отправить</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-dialog max-width="500">
+          <v-btn slot="activator">Создать нового оператора</v-btn>
+          <v-card>
+            <v-card-title>
+              Создание нового оператора
+            </v-card-title>
+            <v-card-text>
+              <v-text-field v-model="faculty" label="Факультет"></v-text-field>
+              <v-text-field v-model="operator_number" label="Номер оператора"></v-text-field>
+              <v-text-field v-model="unique_code" label="Уникальный код"></v-text-field>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn @click="sendNewOperator">Создать</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-dialog max-width="500">
+          <v-btn slot="activator">Создать нового абитуриента</v-btn>
+          <v-card>
+            <v-card-title>
+              Создание нового абитуриента
+            </v-card-title>
+            <v-card-text>
+              <v-text-field v-model="user_faculty" label="Факультет"></v-text-field>
+              <v-text-field v-model="user_vk" label="Вк"></v-text-field>
+              <v-text-field v-model="user_phone" label="Телефон"></v-text-field>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn @click="sendNewUser">Создать</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-container fill-height>
+          <v-layout row wrap>
+            <v-flex xs12 sm6 md4 v-for="faculty in faculties" :key="faculty">
+              <v-layout column>
+                <v-flex  class="mx-4">
+                    <v-card>
+                      <v-card-title class="display-1">
+                        [[ faculty ]]
+                        <v-spacer></v-spacer>
+                        <v-btn @click="sendNewUser(faculty)">Добавить</v-btn></v-card-title>
+                      <v-card-text>
+                        <v-layout text-xs-center row wrap>
+                          <v-flex xs6 md6 v-for="operator in operators_by_faculty(faculty)" :key="operator.token">
+                            <div class="title">
+                              <v-icon slot="activator">face</v-icon> [[ operator.number ]]
+                            </div>
+                            <v-btn small @click="callUser(operator)">Call</v-btn>
+                          </v-flex>
+                      </v-layout>
+                      </v-card-text>
+                    </v-card>
+                </v-flex>
+                <v-flex>
+                  <v-layout row wrap>
+                    <v-flex xs12 md4 class="pa-2" v-for="user in users.filter(a => {return a.faculty === faculty && a.status != 'passed'})" :key="user.token">
+                        <v-card :color='getColor(user.status)'>
+                          <v-card-title class="title">Номер [[ user.order ]]</v-card-title>
+                          <v-card-text v-if="user.operator">Оператор номер [[ user.operator ]]</v-card-text>
+                          <!-- <v-menu v-if="user.status === 'busy'">
+                            <v-btn slot="activator" icon><v-icon>cached</v-icon></v-btn>
+                            <v-list>
+                              <v-list-tile @click="move_user(item.title, user)" v-for="item in faculty_list" :key="item.title">
+                                <v-list-tile-title>
+                                  [[ item.title ]]
+                                </v-list-tile-title>
+                              </v-list-tile>
+                            </v-list>
+                          </v-menu> -->
+                        </v-card>
+                    </v-flex>
+                  </v-layout>
+                </v-flex>
+              </v-layout>
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-content>
+    </v-app>
+  </div>
+
+  <script src="{{ url_for("static", filename="js/vue.js") }}"></script>
+  <script src="{{ url_for("static", filename="js/vuetify.js") }}"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+    new Vue({
+       el: '#app',
+       delimiters:['[[',']]'],
+       data() {
+         return {
+           operator_number: null,
+           unique_code: null,
+           faculty: null,
+           new_course_name: null,
+           new_course_faculty: null,
+           new_opeartor_dialog: false,
+           new_user_dialog: false,
+           user_faculty: null,
+           user_vk: null,
+           user_phone: null,
+           courses: [],
+           faculty_list:[
+             {title: 'ИКСС'},
+             {title: 'РТС'},
+             {title: 'ИСиТ'},
+             {title: 'ВУЦ'},
+             {title: 'ГФ'},
+             {title: 'ЦЭУБИ'},
+             {title: 'ФП'},
+             {title: 'ИНО'}
+           ],
+           states: {
+             'in_order': 'green',
+             'busy': 'orange',
+             'canceled': 'grey',
+             'passed': 'white'
+           },
+           operators: [
+             {
+               faculty: 'РТС',
+               code: 1,
+               token: 1
+             },
+             {
+               faculty: 'РТС',
+               code: 2,
+               token: 2
+             },
+             {
+               faculty: 'ИКСС',
+               code: 3,
+               token: 3
+             },
+             {
+               faculty: 'ИКСС',
+               code: 4,
+               token: 4
+             },
+             {
+               faculty: 'ИСиТ',
+               code: 5,
+               token: 5
+             }
+           ],
+           users: [
+             {
+               faculty: 'ИСиТ'
+             },
+             {
+               faculty: 'ИСиТ'
+             },
+             {
+               faculty: 'РТС'
+             },
+             {
+               faculty: 'РТС'
+             },
+             {
+               faculty: 'РТС'
+             },
+             {
+               faculty: 'ИКСС'
+             },
+             {
+               faculty: 'ИКСС'
+             },
+             {
+               faculty: 'ИКСС'
+             },
+             {
+               faculty: 'ИКСС'
+             },
+             {
+               faculty: 'ИКСС'
+             }
+           ]
+         }
+       },
+       computed :{
+         faculties: function () {
+           const distinct = (value, index, self) => {
+                return self.indexOf(value) === index;
+            }
+           return this.operators.map( a => {return a.faculty}).filter(distinct)
+         }
+       },
+       methods:{
+         sendNewOperator(){
+           const data = {
+             faculty: this.faculty,
+             number: this.operator_number,
+             code: this.unique_code
+           }
+           axios.post("http://ochered.dobroplat.beget.tech/api/operator/create", data).then((resp) =>{
+             this.operators.push(resp.data.items)
+           })
+         },
+         move_user(fac, user, operator = {token: 123}){
+           const data = {
+             new_faculty: fac,
+             operator_token: operator.token,
+             user_token: user.token
+           }
+           axios.post("http://ochered.dobroplat.beget.tech/api/operator/move_user", data).then((resp) =>{
+             console.log(resp)
+             var user = this.users.find(a => {return a.token === resp.data.items.token})
+             user.order = resp.data.items.order
+             user.faculty = resp.data.items.faculty
+             user.status = resp.data.items.status
+             user.operator = resp.data.items.operator
+           })
+         },
+         callUser(operator){
+           const data = {
+             token: operator.token,
+             faculty: operator.faculty
+           }
+           axios.post("http://ochered.dobroplat.beget.tech/api/operator/calluser", data).then((resp) =>{
+             console.log(resp)
+             var current = this.users.find(a => { return a.operator === operator.number})
+             if(current){
+               current.status = resp.data.items[0].status
+               current.operator = resp.data.items[0].operator
+             }
+             var new_u = this.users.find(a => { return a.token === resp.data.items[1].token })
+             if(new_u){
+               new_u.status = resp.data.items[1].status
+               new_u.operator = resp.data.items[1].operator
+             }
+           })
+         },
+         getColor(state){
+           return this.states[state]
+         },
+         operators_by_faculty(faculty){
+           return this.operators.filter(a => {return a.faculty === faculty})
+         },
+         sendNewUser(faculty = ""){
+           const data = {
+             faculty: faculty ? faculty : this.user_faculty,
+             info: {
+               vk: this.user_vk,
+               phone: this.user_phone
+             }
+           }
+           axios.post("http://ochered.dobroplat.beget.tech/api/user/new", data).then((resp) =>{
+             console.log(resp)
+             this.users.push(resp.data.items)
+           })
+         },
+         deleteUsers(){
+           axios.post("http://ochered.dobroplat.beget.tech/api/user/delete_all").then((resp) =>{
+             console.log(resp)
+           })
+         },
+         deleteOperators(){
+           axios.post("http://ochered.dobroplat.beget.tech/api/operator/delete_all").then((resp) =>{
+             console.log(resp)
+           })
+         },
+         addCourse(){
+           const data = {
+             faculty: this.new_course_faculty,
+             course: this.new_course_name,
+             token: "hulinampacanam"
+           }
+           axios.post("http://ochered.dobroplat.beget.tech/api/operator/add_course", data).then((resp) =>{
+             console.log(resp)
+             if (resp.data.items){
+               this.courses.push(resp.data.items)
+             }
+           })
+         }
+       },
+       created() {
+         axios.post("http://ochered.dobroplat.beget.tech/api/operator/show").then((resp) =>{
+           console.log(resp)
+           this.operators = (resp.data.items)
+         })
+         axios.post("http://ochered.dobroplat.beget.tech/api/user/all").then((resp) =>{
+           console.log(resp)
+           this.users = (resp.data.items)
+         })
+         axios.post("http://ochered.dobroplat.beget.tech/api/operator/get_courses").then((resp) =>{
+           console.log(resp)
+           this.courses = (resp.data.items)
+         })
+       }
+    })
+  </script>
+</body>
+</html>
